@@ -7,7 +7,6 @@ class HotelGallerySerializer(serializers.ModelSerializer):
         model = HotelGallery
         fields = ['image']  # Add fields you want to expose
 
-
 class HotelSerializer(serializers.ModelSerializer):
     hotel_gallery = HotelGallerySerializer(many=True, read_only=True) 
     tags = TagListSerializerField()

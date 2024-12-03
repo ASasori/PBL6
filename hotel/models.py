@@ -300,12 +300,11 @@ class Cart(models.Model):
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name="cart_items") 
     room = models.ForeignKey(Room, on_delete=models.CASCADE) 
-
     check_in_date = models.DateField(null=True, blank=True)
     check_out_date = models.DateField(null=True, blank=True)
     num_adults = models.PositiveIntegerField(default=1)
     num_children = models.PositiveIntegerField(default=0)
-
+    
     def total_price(self):
         return self.room.price * self.quantity
 

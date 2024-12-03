@@ -5,7 +5,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
-from hotel.models import Hotel, Booking, ActivityLog, StaffOnDuty, Room, RoomType, Coupon, Notification, Cart, CartItem, Review
+from hotel.models import Hotel, Booking, ActivityLog, StaffOnDuty, Room, RoomType, Coupon, Notification, Cart, CartItem, Review, HotelGallery
 from .serializers import HotelSerializer, RoomTypeSerializer, RoomSerializer, CartSerializer, CartItemSerializer, ReviewSerializer, BookingSerializer
 from rest_framework.parsers import MultiPartParser
 from rest_framework.permissions import IsAdminUser
@@ -18,6 +18,7 @@ from django.db import models
 from django.db.models import Q
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+import logging
 
 class HotelViewSet(viewsets.ModelViewSet):
     permission_classes = [AllowAny]
@@ -88,6 +89,67 @@ class RoomTypeViewSet(viewsets.ModelViewSet):
             'hotel': HotelSerializer(h).data,
             'roomtype': RoomTypeSerializer(rt, many=True).data
         }, status=status.HTTP_200_OK)
+
+logger = logging.getLogger(__name__)
+
+@api_view(['GET'])
+def location(request):
+    location_images_map = {}
+
+    hotels = Hotel.objects.filter(status='Live')
+
+    for hotel in hotels:
+        logger.debug(f"Processing hotel: {hotel}")
+        
+        # Nhóm các khách sạn theo địa chỉ
+        if hotel.address not in location_images_map:
+            location_images_map[hotel.address] = []
+
+        # Lấy danh sách hình ảnh của khách sạn từ bảng HotelGallery
+        hotel_gallery_images = HotelGallery.objects.filter(hotel=hotel)
+
+        # Xử lý khi danh sách hình ảnh trống
+        if hotel_gallery_images.exists():
+            if len(hotel_gallery_images) >= 3:
+                image_path = hotel_gallery_images[2].image.url
+            else:
+                image_path = hotel_gallery_images[0].image.url
+        else:
+            logger.debug(f"Hotel {hotel} has no images, returning null.")
+            image_path = None  # Trả về null nếu không có ảnh
+
+        # Thêm ảnh vào danh sách ảnh của địa chỉ
+        location_images_map[hotel.address].append(image_path)
+
+    # Chuẩn bị dữ liệu trả về
+    response_data = []
+    for location, image_paths in location_images_map.items():
+        response_data.append({
+            'location': location,
+            'imageLocationList': [{'imagePath': image_path} for image_path in image_paths]
+        })
+    
+    return Response(response_data)
+
+
+@api_view(['POST'])
+def search_hotel_by_location_name(request):
+    location = request.data.get('location', '').strip()
+    name = request.data.get('name', '').strip()
+
+    # Tạo bộ lọc dựa trên location và name
+    filters = {}
+    if location:
+        filters['address__icontains'] = location  # Dùng icontains để tìm kiếm không phân biệt hoa thường
+    if name:
+        filters['name__icontains'] = name
+
+    # Lấy các khách sạn khớp với bộ lọc
+    hotels = Hotel.objects.filter(**filters)
+
+    # Serialize kết quả và trả về
+    serializer = HotelSerializer(hotels, many=True, context={'request': request})
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
 def index(request):
