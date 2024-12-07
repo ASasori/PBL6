@@ -15,7 +15,7 @@ class HotelSerializer(serializers.ModelSerializer):
         fields = [
             'user', 'name', 'description', 'map_image', 'address', 'mobile',
             'email', 'status', 'tags', 'views', 'featured', 'hid', 'slug',
-            'date', 'hotel_gallery'  # Add hotel_gallery to fields
+            'date', 'hotel_gallery' # Add hotel_gallery to fields
         ]
 
 class RoomTypeSerializer(serializers.ModelSerializer):

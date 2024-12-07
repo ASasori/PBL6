@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 from pathlib import Path
 import os
 from environs import Env
+from datetime import timedelta
 env = Env()
 env.read_env()
 
@@ -29,11 +30,16 @@ SECRET_KEY = 'django-insecure-&8$zx(^(s0nmnx4k-+4g2&*=nh7ox1e^jxu905v)h#^h@z&z!0
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['103.78.0.191', 'wireguard.nguyentanloc.top', '127.0.0.1', 'localhost', '192.168.1.23', '192.168.1.8']
+ALLOWED_HOSTS = ['103.78.0.191', 'wireguard.nguyentanloc.top', '127.0.0.1', 'localhost', '192.168.43.139', '192.168.1.23', '192.168.1.235', '10.10.37.253']
 SECURE_CROSS_ORIGIN_OPENER_POLICY='same-origin-allow-popups'
 
 # Application definition
-
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=2),  
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),    
+    'ROTATE_REFRESH_TOKENS': True,                   
+    'BLACKLIST_AFTER_ROTATION': True,                 
+}
 INSTALLED_APPS = [
     'django_extensions',
     'jazzmin',

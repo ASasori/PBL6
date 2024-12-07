@@ -1,5 +1,5 @@
 from django.urls import path, re_path, include
-from hotel.views_api import location, search_hotel_by_location_name, create_checkout_session, payment_success, payment_failed, checkout_api, ReviewViewSet, BookingViewSet
+from hotel.views_api import hotel_detail, location, search_hotel_by_location_name, create_checkout_session, payment_success, payment_failed, checkout_api, ReviewViewSet, BookingViewSet
 from hotel import views, views_api
 from rest_framework.routers import DefaultRouter
 
@@ -14,11 +14,10 @@ router.register('bookings', BookingViewSet, basename='booking')
 
 urlpatterns = [
 #     path('hotels/', index, name='hotel_list'),  # List all live hotels
-#     path('hotels/<slug>/', hotel_detail, name='hotel_detail'),  # Get hotel details by slug
 #     path('hotels/<slug:slug>/room-types/<slug:rt_slug>/', room_type_detail, name='room_type_detail'),  # Get room type details for a specific hotel
 #    path('booking/create/', create_booking, name='create_booking'),  # Create a new booking
-     path('locations/', location, name = 'location'),
-     path('locations/hotels_by_location/', search_hotel_by_location_name, name = 'hotels_by_location'),
+     
+     # path('hotels/<slug>/', hotel_detail, name='hotel_detail'),  # Get hotel details by slug
      path('checkout-api/<str:booking_id>/', checkout_api, name='checkout_api'),  # API to handle checkout and coupon application
      path('checkout/<str:booking_id>/', create_checkout_session, name='create_checkout_session'),  # Checkout for booking
      path('payment-success/<str:booking_id>/', payment_success, name='payment_success'),  # Payment success
